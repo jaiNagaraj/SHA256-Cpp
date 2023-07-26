@@ -22,8 +22,8 @@ string sha256(string msg)
     uint32_t h6 = 0x1f83d9ab;
     uint32_t h7 = 0x5be0cd19;
 
-    //Initialize array of round constants:
-    //(first 32 bits of the fractional parts of the cube roots of the first 64 primes 2..311):
+    //Initialize array of round constants
+    //first 32 bits of the fractional parts of the cube roots of the first 64 primes 2..311
     uint32_t k[] =
        {0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
        0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -34,7 +34,7 @@ string sha256(string msg)
        0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
 
-    //Pre-processing (Padding):
+    //Pre-processing (Padding)
     //begin with the original message of length L bits
     //append a single '1' bit
     int size = msg.size();
@@ -46,7 +46,6 @@ string sha256(string msg)
         binMsg += binary;
     }
     uint64_t L = binMsg.size();
-    //cout << L << endl;
     binMsg += "1";
     //append K '0' bits, where K is the minimum number >= 0 such that (L + 1 + K + 64) is a multiple of 512
     uint64_t K = 0;
@@ -55,12 +54,12 @@ string sha256(string msg)
         binMsg += "0";
         K++;
     }
-    //append L as a 64-bit big-endian integer, making the total post-processed length a multiple of 512 bits such that the bits in the message are: <original message of length L> 1 <K zeros> <L as 64 bit integer> , (the number of bits will be a multiple of 512)
+    //append L as a 64-bit big-endian integer, making the total post-processed length a multiple of 512 bits 
+    //bits in the message are: <original message of length L> 1 <K zeros> <L as 64 bit integer>
     string bin64 = bitset<64>(L).to_string();
     binMsg += bin64;
 
-    //Process the message in successive 512-bit chunks:
-    //break message into 512-bit chunks
+    //Process the message in successive 512-bit chunks
     string temp = "";
     const int CHUNKS = binMsg.size() / 512;
     string chunks[CHUNKS];
@@ -79,7 +78,7 @@ string sha256(string msg)
     for (int chunk = 0; chunk < CHUNKS; chunk++)
     {
         //create a 64-entry message schedule array w[0..63] of 32-bit words
-        //(The initial values in w[0..63] don't matter, so many implementations zero them here)
+        //The initial values in w[0..63] don't matter, no initialization needed
         //copy chunk into first 16 words w[0..15] of the message schedule array
         string w[64];
         string temp = "";
@@ -96,7 +95,7 @@ string sha256(string msg)
             }
         }
 
-        //Extend the first 16 words into the remaining 48 words w[16..63] of the message schedule array:
+        //Extend the first 16 words into the remaining 48 words w[16..63] of the message schedule array
         for (int i = 16; i < 64; i++)
         {
             uint32_t s0 = (rightrotate((uint32_t)(stoul(w[i-15], 0, 2)), 7)) ^ (rightrotate((uint32_t)(stoul(w[i-15], 0, 2)), 18)) ^ (stoul(w[i-15], 0, 2) >> 3);
@@ -106,7 +105,7 @@ string sha256(string msg)
             w[i] = bitset<32>(s2 + s0 + s3 + s1).to_string();
         }
 
-        //Initialize working variables to current hash value:
+        //Initialize working variables to current hash value
         uint32_t a = h0;
         uint32_t b = h1;
         uint32_t c = h2;
@@ -116,7 +115,7 @@ string sha256(string msg)
         uint32_t g = h6;
         uint32_t h = h7;
 
-        //Compression function main loop:
+        //Compression function main loop
         for (int i = 0; i < 64; i++) 
         {
             uint32_t S1 = rightrotate(e, 6) ^ rightrotate(e, 11) ^ rightrotate(e, 25);
@@ -136,7 +135,7 @@ string sha256(string msg)
             a = temp1 + temp2;
         }
 
-        //Add the compressed chunk to the current hash value:
+        //Add the compressed chunk to the current hash value
         h0 = h0 + a;
         h1 = h1 + b;
         h2 = h2 + c;
@@ -147,7 +146,7 @@ string sha256(string msg)
         h7 = h7 + h;
     }
     
-    //Produce the final hash value (big-endian):
+    //Produce the final hash value (big-endian)
     char strh0[256],strh1[256],strh2[256],strh3[256],strh4[256],strh5[256],strh6[256],strh7[256];
     snprintf(strh0,256,"%X",h0);
     snprintf(strh1,256,"%X",h1);
